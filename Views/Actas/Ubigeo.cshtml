@@ -1,0 +1,412 @@
+﻿@model List<webOnpeMVC.Models.Departamento>
+@{
+    ViewData["Title"] = "Actas por Ubigeo";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.MenuActivo = "Actas";
+}
+
+<div class="container">
+    <img src="~/content/images/f-actas.jpg" width="1170" height="248" class="img-responsive mg30top" alt="Actas">
+
+        @await Html.PartialAsync("_MenuNavegacion")
+        <br /><br /><br /><br />
+
+        <section class="contenedor">
+            <div class="row">
+                <div class="col-xs-12 col-md-3">
+                    <div class="menu-interna">
+                        <ul>
+                            <li><a href="@Url.Action("Ubigeo","Actas")" class="act-izq">Actas por ubigeo</a></li>
+                            <li><a href="@Url.Action("Numero","Actas")">Actas por número</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-md-9" id="impreso">
+                    <div class="contenido-interna">
+                        <div class="titulos col-xs-12">
+                            <div class="col-xs-11">
+                                <h3>
+                                    <span class="glyphicon glyphicon-circle-arrow-right" aria-hidden="true" style="font-size:19px"></span>
+                                    SEGUNDA ELECCIÓN PRESIDENCIAL 2016: ACTAS POR UBIGEO
+                                </h3>
+                            </div>
+                            <div class="col-xs-1 oculto-boton-print">
+                                <button onclick="window.print()"><i class="fa fa-print ico-print"></i></button>
+                            </div>
+                        </div>
+
+                        @await Html.PartialAsync("_ActasContabilizadas")
+
+                        <div class="col-xs-12 td34up">
+                            <form id="frmBuscar" class="horizontal-form" style="margin-bottom: 20px;">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label class="control-label">Ámbito:</label>
+                                            <select id="selAmbito" class="form-control">
+                                                <option value="Nacional">PERÚ</option>
+                                                <option value="Extranjero">EXTRANJERO</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label id="lblNivel1" class="control-label">Departamento:</label>
+                                            <select id="selDepartamento" class="form-control">
+                                                <option value="">--SELECCIONE--</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label id="lblNivel2" class="control-label">Provincia:</label>
+                                            <select id="selProvincia" class="form-control" disabled>
+                                                <option value="">--SELECCIONE--</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label id="lblNivel3" class="control-label">Distrito:</label>
+                                            <select id="selDistrito" class="form-control" disabled>
+                                                <option value="">--SELECCIONE--</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div class="form-group">
+                                            <label id="lblNivel4" class="control-label">Locales:</label>
+                                            <select id="selLocal" class="form-control" disabled>
+                                                <option value="">--SELECCIONE--</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+
+                            <div id="divMesas" style="display:none;" class="col-xs-12 pbot30">
+                                <p class="subtitle">LISTADO DE MESAS</p>
+                                <div id="page-wrap">
+                                    <table class="table17" cellspacing="0" id="tblMesas">
+                                        <tbody id="tbodyMesas"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div id="divDetalle" style="display:none;" class="ptop20">
+                                <div class="contenido-resultados">
+                                    <button id="btnRegresar" class="btn btn-primary" type="button" onclick="ocultarDetalle()">
+                                        <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span> REGRESAR
+                                    </button>
+                                    <p class="clearfix">&nbsp;</p>
+
+                                    <div class="row">
+                                        <div class="col-xs-3 col-md-4">
+                                            <div class="mesap01">
+                                                <img src="~/content/images/mp-sin.jpg" class="img-responsive">
+                                                    Si requiere la imagen del acta, solicítela a través del procedimiento de acceso a la información pública.
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-9 col-md-8">
+                                                <div class="row">
+                                                    <div class="col-xs-12">
+                                                        <p class="subtitle1">ACTA ELECTORAL</p>
+                                                        <table class="table13" cellspacing="0">
+                                                            <thead><tr><th>Mesa N°</th><th>N° Copia</th></tr></thead>
+                                                            <tbody>
+                                                                <tr>
+                                                                    <td id="detMesaId"></td>
+                                                                    <td id="detNCopia"></td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                    <div class="col-xs-12">
+                                                        <p class="subtitle1">INFORMACIÓN UBIGEO</p>
+                                                        <table class="table14" cellspacing="0">
+                                                            <tbody>
+                                                                <tr class="titulo_tabla">
+                                                                    <td id="lblTDepartamento">Departamento</td>
+                                                                    <td id="lblTProvincia">Provincia</td>
+                                                                    <td id="lblTDistrito">Distrito</td>
+                                                                    <td>Local de votación</td>
+                                                                    <td>Dirección</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td id="detDepartamento"></td>
+                                                                    <td id="detProvincia"></td>
+                                                                    <td id="detDistrito"></td>
+                                                                    <td id="detRazonSocial"></td>
+                                                                    <td id="detDireccion"></td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                    <div class="col-xs-12">
+                                                        <p class="subtitle1">INFORMACIÓN MESA</p>
+                                                        <table class="table15" cellspacing="0">
+                                                            <tbody>
+                                                                <tr class="titulo_tabla">
+                                                                    <td>Electores hábiles</td>
+                                                                    <td>Total votantes</td>
+                                                                    <td>Estado del acta</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td id="detElectores"></td>
+                                                                    <td id="detVotantes"></td>
+                                                                    <td id="detEstado"></td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-xs-12">
+                                            <p class="subtitle1">INFORMACIÓN DEL ACTA ELECTORAL</p>
+                                            <div id="page-wrap" class="cont-tabla1" style="margin-bottom: 50px;">
+                                                <table class="table06">
+                                                    <tbody>
+                                                        <tr class="titulo_tabla">
+                                                            <td colspan="2">Organización política</td>
+                                                            <td>Total de Votos</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>PERUANOS POR EL KAMBIO</td>
+                                                            <td><img width="40px" height="40px" src="~/content/images/simbolo_pkk.jpg"></td>
+                                                            <td id="detP1"></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>FUERZA POPULAR</td>
+                                                            <td><img width="40px" height="40px" src="~/content/images/simbolo_keyko.jpg"></td>
+                                                            <td id="detP2"></td>
+                                                        </tr>
+                                                        <tr><td colspan="2">VOTOS EN BLANCO</td><td id="detBlancos"></td></tr>
+                                                        <tr><td colspan="2">VOTOS NULOS</td><td id="detNulos"></td></tr>
+                                                        <tr><td colspan="2">VOTOS IMPUGNADOS</td><td id="detImpugnados"></td></tr>
+                                                        <tr><td colspan="2">TOTAL DE VOTOS EMITIDOS</td><td id="detTotal"></td></tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        @section Scripts {
+            <script>
+                const dataNacional = [];
+                const dataExtranjero = [];
+                @if (Model != null)
+                {
+                                    foreach (var dep in Model)
+                                    {
+                                                        if (dep.IdDepartamento <= 25)
+                                                        {
+                                                                            <text>dataNacional.push({ id: '@dep.IdDepartamento', nombre: '@Html.Raw(dep.Detalle.Trim())' });</text>
+                                                        }
+                                                        else
+                                                        {
+                                                                            <text>dataExtranjero.push({ id: '@dep.IdDepartamento', nombre: '@Html.Raw(dep.Detalle.Trim())' });</text>
+                                                        }
+                                    }
+                }
+
+                const selAmbito = document.getElementById('selAmbito');
+                const lblNivel1 = document.getElementById('lblNivel1');
+                const lblNivel2 = document.getElementById('lblNivel2');
+                const lblNivel3 = document.getElementById('lblNivel3');
+                const lblNivel4 = document.getElementById('lblNivel4');
+
+                selAmbito.addEventListener('change', function () {
+                    const val = this.value;
+                    resetSelect('selProvincia');
+                    resetSelect('selDistrito');
+                    resetSelect('selLocal');
+                    ocultarMesas();
+
+                    if (val === 'Nacional') {
+                        lblNivel1.textContent = 'Departamento:';
+                        lblNivel2.textContent = 'Provincia:';
+                        lblNivel3.textContent = 'Distrito:';
+                        lblNivel4.textContent = 'Locales:';
+                        llenarSelectLocal('selDepartamento', dataNacional, 'id', 'nombre');
+                    } else {
+                        lblNivel1.textContent = 'Continente:';
+                        lblNivel2.textContent = 'País:';
+                        lblNivel3.textContent = 'Ciudad:';
+                        lblNivel4.textContent = 'Locales:';
+                        llenarSelectLocal('selDepartamento', dataExtranjero, 'id', 'nombre');
+                    }
+                });
+
+                function llenarSelectLocal(id, data, valKey, txtKey) {
+                    const sel = document.getElementById(id);
+                    sel.innerHTML = '<option value="">--SELECCIONE--</option>';
+                    data.forEach(item => {
+                        const opt = document.createElement('option');
+                        opt.value = item[valKey];
+                        opt.text  = item[txtKey];
+                        sel.appendChild(opt);
+                    });
+                    sel.disabled = false;
+                }
+
+                document.addEventListener('DOMContentLoaded', function () {
+                    selAmbito.dispatchEvent(new Event('change'));
+                });
+
+                document.getElementById('selDepartamento').addEventListener('change', function () {
+                    const id = this.value;
+                    resetSelect('selProvincia');
+                    resetSelect('selDistrito');
+                    resetSelect('selLocal');
+                    ocultarMesas();
+                    if (!id) return;
+
+                    fetch('/Onpe/GetProvincias?idDepartamento=' + id)
+                        .then(r => r.json())
+                        .then(data => {
+                            llenarSelect('selProvincia', data, 'idProvincia', 'detalle');
+                        });
+                });
+
+                document.getElementById('selProvincia').addEventListener('change', function () {
+                    const id = this.value;
+                    resetSelect('selDistrito');
+                    resetSelect('selLocal');
+                    ocultarMesas();
+                    if (!id) return;
+
+                    fetch('/Onpe/GetDistritos?idProvincia=' + id)
+                        .then(r => r.json())
+                        .then(data => {
+                            llenarSelect('selDistrito', data, 'idDistrito', 'detalle');
+                        });
+                });
+
+                document.getElementById('selDistrito').addEventListener('change', function () {
+                    const id = this.value;
+                    resetSelect('selLocal');
+                    ocultarMesas();
+                    if (!id) return;
+
+                    fetch('/Onpe/GetLocalesVotacion?idDistrito=' + id)
+                        .then(r => r.json())
+                        .then(data => {
+                            llenarSelect('selLocal', data, 'idLocalVotacion', 'razonSocial');
+                        });
+                });
+
+                document.getElementById('selLocal').addEventListener('change', function () {
+                    const id = this.value;
+                    ocultarMesas();
+                    if (!id) return;
+
+                    fetch('/Onpe/GetGruposVotacion?idLocalVotacion=' + id)
+                        .then(r => r.json())
+                        .then(grupos => {
+                            const tbody = document.getElementById('tbodyMesas');
+                            tbody.innerHTML = '';
+                            let tr = document.createElement('tr');
+                            grupos.forEach((g, i) => {
+                                if (i > 0 && i % 10 === 0) {
+                                    tbody.appendChild(tr);
+                                    tr = document.createElement('tr');
+                                }
+                                const td = document.createElement('td');
+                                td.style.cursor = 'pointer';
+                                td.style.backgroundColor = '#C1C1C1';
+                                td.innerHTML = '<a href="#">' + g + '</a>';
+                                td.addEventListener('click', function (e) {
+                                    e.preventDefault();
+                                    verDetalleMesa(g);
+                                });
+                                tr.appendChild(td);
+                            });
+                            tbody.appendChild(tr);
+                            document.getElementById('divMesas').style.display = 'block';
+                        });
+                });
+
+                function verDetalleMesa(idGrupo) {
+                    fetch('/Onpe/GetGrupoVotacion?id=' + idGrupo)
+                        .then(r => r.json())
+                        .then(d => {
+                            if (d.error) { alert(d.error); return; }
+                            document.getElementById('detMesaId').textContent      = d.idGrupoVotacion;
+                            document.getElementById('detNCopia').textContent       = d.nCopia;
+                            document.getElementById('detDepartamento').textContent = d.departamento;
+                            document.getElementById('detProvincia').textContent    = d.provincia;
+                            document.getElementById('detDistrito').textContent     = d.distrito;
+                            document.getElementById('detRazonSocial').textContent  = d.razonSocial;
+                            document.getElementById('detDireccion').textContent    = d.direccion;
+                            document.getElementById('detElectores').textContent    = d.electoresHabiles;
+                            document.getElementById('detVotantes').textContent     = d.totalVotantes;
+                            document.getElementById('detEstado').textContent       = d.estadoActaTexto;
+                            document.getElementById('detP1').textContent           = d.p1;
+                            document.getElementById('detP2').textContent           = d.p2;
+                            document.getElementById('detBlancos').textContent      = d.votosBlancos;
+                            document.getElementById('detNulos').textContent        = d.votosNulos;
+                            document.getElementById('detImpugnados').textContent   = d.votosImpugnados;
+                            document.getElementById('detImpugnados').textContent   = d.votosImpugnados;
+                            document.getElementById('detTotal').textContent        = d.totalVotantes;
+
+                            const continentes = ['AFRICA', 'AMERICA', 'ASIA', 'EUROPA', 'OCEANIA'];
+                            const isExtranjero = continentes.includes((d.departamento || '').toUpperCase());
+
+                            document.getElementById('lblTDepartamento').textContent = isExtranjero ? 'Continente' : 'Departamento';
+                            document.getElementById('lblTProvincia').textContent = isExtranjero ? 'País' : 'Provincia';
+                            document.getElementById('lblTDistrito').textContent = isExtranjero ? 'Ciudad' : 'Distrito';
+
+                            const btnReg = document.getElementById('btnRegresar');
+                            if (isExtranjero) {
+                                btnReg.classList.add('pull-right');
+                            } else {
+                                btnReg.classList.remove('pull-right');
+                            }
+
+                            document.getElementById('divDetalle').style.display    = 'block';
+                            document.getElementById('divMesas').style.display      = 'none';
+                        });
+                }
+
+                function ocultarDetalle() {
+                    document.getElementById('divDetalle').style.display = 'none';
+                    document.getElementById('divMesas').style.display  = 'block';
+                }
+
+                function ocultarMesas() {
+                    document.getElementById('divMesas').style.display   = 'none';
+                    document.getElementById('divDetalle').style.display = 'none';
+                }
+
+                function llenarSelect(id, data, valKey, txtKey) {
+                    const sel = document.getElementById(id);
+                    sel.innerHTML = '<option value="">--SELECCIONE--</option>';
+                    data.forEach(item => {
+                        const opt = document.createElement('option');
+                        opt.value = item[valKey];
+                        opt.text  = item[txtKey];
+                        sel.appendChild(opt);
+                    });
+                    sel.disabled = false;
+                }
+
+                function resetSelect(id) {
+                    const sel = document.getElementById(id);
+                    sel.innerHTML = '<option value="">--SELECCIONE--</option>';
+                    sel.disabled = true;
+                }
+            </script>
+        }

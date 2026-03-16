@@ -1,0 +1,222 @@
+﻿@{
+    ViewData["Title"] = "Actas por Número";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.MenuActivo = "Actas";
+}
+
+<div class="container">
+    <img src="~/content/images/f-actas.jpg" width="1170" height="248" class="img-responsive mg30top" alt="Actas">
+
+        @await Html.PartialAsync("_MenuNavegacion")
+        <br /><br /><br /><br />
+
+        <section class="contenedor">
+            <div class="row">
+                <div class="col-xs-12 col-md-3">
+                    <div class="menu-interna">
+                        <ul>
+                            <li><a href="@Url.Action("Ubigeo","Actas")">Actas por ubigeo</a></li>
+                            <li><a href="@Url.Action("Numero","Actas")" class="act-izq">Actas por número</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-md-9" id="impreso">
+                    <div class="contenido-interna">
+                        <div class="titulos col-xs-12">
+                            <div class="col-xs-11">
+                                <h3>
+                                    <span class="glyphicon glyphicon-circle-arrow-right" aria-hidden="true" style="font-size:19px"></span>
+                                    SEGUNDA ELECCIÓN PRESIDENCIAL 2016: ACTAS POR NÚMERO
+                                </h3>
+                            </div>
+                            <div class="col-xs-1 oculto-boton-print">
+                                <button onclick="window.print()"><i class="fa fa-print ico-print"></i></button>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-12">
+                            @await Html.PartialAsync("_ActasContabilizadas")
+
+                            <div id="page-wrap">
+                                <br />
+                                <p>&nbsp;</p>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        INGRESE EL NÚMERO DE ACTA:
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <input id="nroMesa" type="text" maxlength="6" class="form-control"
+                                                   placeholder="Ej: 000001"
+                                                   onkeypress="if(event.key==='Enter') buscarActa()">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <button type="button" onclick="buscarActa()" class="btn btn-primary">
+                                            <span class="glyphicon glyphicon-search" aria-hidden="true"></span> BUSCAR
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="divDetalle" class="ptop20" style="display:none;">
+                                <div class="contenido-resultados">
+
+                                    <div id="msgNoExiste" class="tab-info" style="display:none;">
+                                        EL NÚMERO DE MESA QUE HA INGRESADO NO EXISTE
+                                    </div>
+
+                                    <div id="panelResultado" style="display:none;">
+                                        <div class="row">
+                                            <div class="col-xs-3 col-md-4">
+                                                <div class="mesap01">
+                                                    <img src="~/content/images/mp-sin.jpg" class="img-responsive">
+                                                        Si requiere la imagen del acta, solicítela a través del procedimiento de acceso a la información pública.
+                                                    </div>
+                                                </div>
+                                                <div class="col-xs-9 col-md-8">
+                                                    <div class="row">
+                                                        <div class="col-xs-12">
+                                                            <p class="subtitle1">ACTA ELECTORAL</p>
+                                                            <table class="table13" cellspacing="0">
+                                                                <thead><tr><th>Mesa N°</th><th>N° Copia</th></tr></thead>
+                                                                <tbody>
+                                                                    <tr>
+                                                                        <td id="rMesaId"></td>
+                                                                        <td id="rNCopia"></td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                        <div class="col-xs-12">
+                                                            <p class="subtitle1">INFORMACIÓN UBIGEO</p>
+                                                            <table class="table14" cellspacing="0">
+                                                                <tbody>
+                                                                    <tr class="titulo_tabla">
+                                                                        <td id="rLblTDepartamento">Departamento</td>
+                                                                        <td id="rLblTProvincia">Provincia</td>
+                                                                        <td id="rLblTDistrito">Distrito</td>
+                                                                        <td>Local de votación</td>
+                                                                        <td>Dirección</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td id="rDepartamento"></td>
+                                                                        <td id="rProvincia"></td>
+                                                                        <td id="rDistrito"></td>
+                                                                        <td id="rRazonSocial"></td>
+                                                                        <td id="rDireccion"></td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                        <div class="col-xs-12">
+                                                            <p class="subtitle1">INFORMACIÓN MESA</p>
+                                                            <table class="table15" cellspacing="0">
+                                                                <tbody>
+                                                                    <tr class="titulo_tabla">
+                                                                        <td>Electores hábiles</td>
+                                                                        <td>Total votantes</td>
+                                                                        <td>Estado del acta</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td id="rElectores"></td>
+                                                                        <td id="rVotantes"></td>
+                                                                        <td id="rEstado"></td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-xs-12">
+                                                <p class="subtitle1">INFORMACIÓN DEL ACTA ELECTORAL</p>
+                                                <div id="page-wrap2" class="cont-tabla1" style="margin-bottom: 50px;">
+                                                    <table class="table06">
+                                                        <tbody>
+                                                            <tr class="titulo_tabla">
+                                                                <td colspan="2">Organización política</td>
+                                                                <td>Total de Votos</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>PERUANOS POR EL KAMBIO</td>
+                                                                <td><img width="40px" height="40px" src="~/content/images/simbolo_pkk.jpg"></td>
+                                                                <td id="rP1"></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>FUERZA POPULAR</td>
+                                                                <td><img width="40px" height="40px" src="~/content/images/simbolo_keyko.jpg"></td>
+                                                                <td id="rP2"></td>
+                                                            </tr>
+                                                            <tr><td colspan="2">VOTOS EN BLANCO</td><td id="rBlancos"></td></tr>
+                                                            <tr><td colspan="2">VOTOS NULOS</td><td id="rNulos"></td></tr>
+                                                            <tr><td colspan="2">VOTOS IMPUGNADOS</td><td id="rImpugnados"></td></tr>
+                                                            <tr><td colspan="2">TOTAL DE VOTOS EMITIDOS</td><td id="rTotal"></td></tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        @section Scripts {
+            <script>
+                function buscarActa() {
+                    const numero = document.getElementById('nroMesa').value.trim().padStart(6, '0');
+                    if (!numero || numero === '000000') return;
+
+                    fetch('/Onpe/GetGrupoVotacion?id=' + numero)
+                        .then(r => r.json())
+                        .then(d => {
+                            const detalle = document.getElementById('divDetalle');
+                            const panel   = document.getElementById('panelResultado');
+                            const noExist = document.getElementById('msgNoExiste');
+                            detalle.style.display = 'block';
+
+                            if (d.error) {
+                                noExist.style.display = 'block';
+                                panel.style.display   = 'none';
+                                return;
+                            }
+
+                            noExist.style.display = 'none';
+                            panel.style.display   = 'block';
+
+                            document.getElementById('rMesaId').textContent      = d.idGrupoVotacion;
+                            document.getElementById('rNCopia').textContent       = d.nCopia;
+                            document.getElementById('rDepartamento').textContent = d.departamento;
+                            document.getElementById('rProvincia').textContent    = d.provincia;
+                            document.getElementById('rDistrito').textContent     = d.distrito;
+                            document.getElementById('rRazonSocial').textContent  = d.razonSocial;
+                            document.getElementById('rDireccion').textContent    = d.direccion;
+                            document.getElementById('rElectores').textContent    = d.electoresHabiles;
+                            document.getElementById('rVotantes').textContent     = d.totalVotantes;
+                            document.getElementById('rEstado').textContent       = d.estadoActaTexto;
+                            document.getElementById('rP1').textContent           = d.p1;
+                            document.getElementById('rP2').textContent           = d.p2;
+                            document.getElementById('rBlancos').textContent      = d.votosBlancos;
+                            document.getElementById('rNulos').textContent        = d.votosNulos;
+                            document.getElementById('rImpugnados').textContent   = d.votosImpugnados;
+                            document.getElementById('rTotal').textContent        = d.totalVotantes;
+
+                            const continentes = ['AFRICA', 'AMERICA', 'ASIA', 'EUROPA', 'OCEANIA'];
+                            const isExtranjero = continentes.includes((d.departamento || '').toUpperCase());
+
+                            document.getElementById('rLblTDepartamento').textContent = isExtranjero ? 'Continente' : 'Departamento';
+                            document.getElementById('rLblTProvincia').textContent = isExtranjero ? 'País' : 'Provincia';
+                            document.getElementById('rLblTDistrito').textContent = isExtranjero ? 'Ciudad' : 'Distrito';
+
+                        });
+                }
+            </script>
+        }
+

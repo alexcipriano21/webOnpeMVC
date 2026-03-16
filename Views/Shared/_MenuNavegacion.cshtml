@@ -1,0 +1,49 @@
+﻿@* Parámetro: activo = "Actas" | "Participacion" *@
+@{
+    string activo = ViewBag.MenuActivo as string ?? "";
+    bool esActas = activo == "Actas";
+    bool esParticipacion = activo == "Participacion";
+}
+<section class="menu navbar-default menu05">
+    <div class="navbar-header">
+        <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target=".bs-navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
+    </div>
+    <a name="posicion"></a>
+    <nav class="navbar-collapse bs-navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+            <li class="bt-azul">
+                <a href="@Url.Action("Index", "Home")" style="background-color: #e1e1e1;">PRESIDENCIAL</a>
+            </li>
+            @if (esActas)
+            {
+                <li class="bt-amarillo act-amarillo">
+                    <a href="@Url.Action("Ubigeo", "Actas")">ACTAS</a>
+                </li>
+            }
+            else
+            {
+                <li class="bt-amarillo">
+                    <a href="@Url.Action("Ubigeo", "Actas")" style="background-color: #e1e1e1;">ACTAS</a>
+                </li>
+            }
+
+            @if (esParticipacion)
+            {
+                <li class="bt-rojo act-rojo">
+                    <a href="@Url.Action("Index", "Participacion")">PARTICIPACIÓN CIUDADANA</a>
+                </li>
+            }
+            else
+            {
+                <li class="bt-rojo">
+                    <a href="@Url.Action("Index", "Participacion")" style="background-color: #e1e1e1;">PARTICIPACIÓN CIUDADANA</a>
+                </li>
+            }
+        </ul>
+    </nav>
+</section>
