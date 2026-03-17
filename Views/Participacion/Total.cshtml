@@ -1,96 +1,8 @@
-﻿@model List<webOnpeMVC.Models.ResultadoVotos>
+﻿@model webOnpeMVC.Models.ParticipacionTotal
 @{
     ViewData["Title"] = "Participación - Detalle";
     Layout = "~/Views/Shared/_Layout.cshtml";
     ViewBag.MenuActivo = "Participacion";
-
-    string ambito = ViewBag.Ambito ?? "Nacional";
-    int nivel = (int)(ViewBag.Nivel ?? 0);
-    string val = ViewBag.Val ?? "";
-    string padre = ViewBag.Padre ?? "";
-    string abuelo = ViewBag.Abuelo ?? "";
-
-    bool esExtranjero = ambito == "Extranjero";
-
-    string colHeader = nivel == 0
-        ? (esExtranjero ? "CONTINENTE" : "DEPARTAMENTO")
-        : nivel == 1
-            ? (esExtranjero ? "PAÍS" : "PROVINCIA")
-            : (esExtranjero ? "CIUDAD" : "DISTRITO");
-
-    string lbl1 = esExtranjero ? "Continente" : "Departamento";
-    string lbl2 = esExtranjero ? "País" : "Provincia";
-    string lbl3 = esExtranjero ? "Ciudad" : "Distrito";
-
-    string n1val = nivel == 1 ? val : (nivel == 2 ? padre : abuelo);
-    string n2val = nivel == 2 ? val : (nivel == 3 ? padre : "");
-    string n3val = nivel == 3 ? val : "";
-
-    int totalTV = 0, totalTA = 0, totalEH = 0;
-    if (Model != null)
-    {
-        foreach (var r in Model)
-        {
-            totalTV += r.TotalVotantes;
-            totalTA += r.TotalAusentes;
-            totalEH += r.ElectoresHabiles;
-        }
-    }
-
-    string pctTVstr = totalEH > 0
-        ? Math.Round((double)totalTV * 100.0 / totalEH, 3)
-              .ToString("0.000", System.Globalization.CultureInfo.InvariantCulture)
-        : "0.000";
-    string pctTAstr = totalEH > 0
-        ? Math.Round((double)totalTA * 100.0 / totalEH, 3)
-              .ToString("0.000", System.Globalization.CultureInfo.InvariantCulture)
-        : "0.000";
-
-    Func<string, string> MakeUrl = dpd =>
-    {
-        int nxt = nivel + 1;
-        string p = nivel >= 1 ? val : "";
-        string ab = nivel >= 2 ? padre : "";
-        return "/Participacion/Total"
-             + "?ambito=" + System.Net.WebUtility.UrlEncode(ambito)
-             + "&nivel=" + nxt.ToString()
-             + "&val=" + System.Net.WebUtility.UrlEncode(dpd)
-             + "&padre=" + System.Net.WebUtility.UrlEncode(p)
-             + "&abuelo=" + System.Net.WebUtility.UrlEncode(ab);
-    };
-
-    bool mostrarTabla = nivel < 3 && Model != null && Model.Count > 0;
-    // Los totales para el gráfico y la fila TOTALES usan las mismas variables
-    int ttv = totalTV, tta = totalTA, teh = totalEH;
-    var filas = new System.Text.StringBuilder();
-    if (mostrarTabla)
-    {
-        foreach (var r in Model!)
-        {
-            string url = MakeUrl(r.Nombre);
-            string tvStr = r.TotalVotantes.ToString("N0");
-            string taStr = r.TotalAusentes.ToString("N0");
-            string ehStr = r.ElectoresHabiles.ToString("N0");
-            filas.Append("<tr style='cursor:pointer;' onmouseover=\"this.style.color='grey'\" onmouseout=\"this.style.color='black'\" onclick=\"window.location='" + url + "'\">");
-            filas.Append("<td>" + System.Net.WebUtility.HtmlEncode(r.Nombre) + "</td>");
-            filas.Append("<td>" + tvStr + "</td>");
-            filas.Append("<td>" + System.Net.WebUtility.HtmlEncode(r.PctTotalVotantes) + "</td>");
-            filas.Append("<td>" + taStr + "</td>");
-            filas.Append("<td>" + System.Net.WebUtility.HtmlEncode(r.PctTotalAusentes) + "</td>");
-            filas.Append("<td>" + ehStr + "</td>");
-            filas.Append("</tr>");
-        }
-        string pctTotTV = teh > 0 ? Math.Round((decimal)ttv * 100 / teh, 3).ToString("0.000", System.Globalization.CultureInfo.InvariantCulture) : "0.000";
-        string pctTotTA = teh > 0 ? Math.Round((decimal)tta * 100 / teh, 3).ToString("0.000", System.Globalization.CultureInfo.InvariantCulture) : "0.000";
-        filas.Append("<tr>");
-        filas.Append("<td><strong>TOTALES</strong></td>");
-        filas.Append("<td><strong>" + ttv.ToString("N0") + "</strong></td>");
-        filas.Append("<td><strong>" + pctTotTV + " %</strong></td>");
-        filas.Append("<td><strong>" + tta.ToString("N0") + "</strong></td>");
-        filas.Append("<td><strong>" + pctTotTA + " %</strong></td>");
-        filas.Append("<td><strong>" + teh.ToString("N0") + "</strong></td>");
-        filas.Append("</tr>");
-    }
 }
 
 <div id="imprimelo3">
@@ -141,7 +53,7 @@
                                 @await Html.PartialAsync("_ActasContabilizadas")
                             </div>
 
-                            @if (Model != null && Model.Count > 0)
+                            @if (Model.Resultados != null && Model.Resultados.Count > 0)
                             {
                                 <div class="col-xs-12 line pbot30">
                                     <div class="col-xs-12 col-md-5" style="text-align:center">
@@ -155,24 +67,14 @@
 
                                     <div class="col-xs-12 col-md-7">
                                         <div class="cont-recto" style="margin-bottom:10px; line-height:1.8;">
-                                            Ámbito: @ambito
-                                            @if (nivel >= 1)
+                                            Ámbito: @Model.Ambito
+                                            @foreach (var detalle in Model.DetallesAmbito)
                                             {
                                                 <br />
-                                                @(lbl1 + ": " + n1val)
-                                            }
-                                            @if (nivel >= 2)
-                                            {
-                                                <br />
-                                                @(lbl2 + ": " + n2val)
-                                            }
-                                            @if (nivel >= 3)
-                                            {
-                                                <br />
-                                                @(lbl3 + ": " + n3val)
+                                                @detalle
                                             }
                                         </div>
-                                        <p class="subtitle">ELECTORES HÁBILES @totalEH.ToString("N0")</p>
+                                        <p class="subtitle">ELECTORES HÁBILES @Model.TotalEH.ToString("N0")</p>
                                         <div id="page-wrap">
                                             <table class="table09_2" cellspacing="0">
                                                 <thead>
@@ -183,12 +85,12 @@
                                                 </thead>
                                                 <tbody>
                                                     <tr>
-                                                        <td>TOTAL: @totalTV.ToString("N0")</td>
-                                                        <td>TOTAL: @totalTA.ToString("N0")</td>
+                                                        <td>TOTAL: @Model.TotalTV.ToString("N0")</td>
+                                                        <td>TOTAL: @Model.TotalTA.ToString("N0")</td>
                                                     </tr>
                                                     <tr>
-                                                        <td>% TOTAL: @(pctTVstr)%</td>
-                                                        <td>% TOTAL: @(pctTAstr)%</td>
+                                                        <td>% TOTAL: @(Model.PctTVStr)%</td>
+                                                        <td>% TOTAL: @(Model.PctTAStr)%</td>
                                                     </tr>
                                                 </tbody>
                                             </table>
@@ -196,87 +98,15 @@
                                     </div>
                                 </div>
 
+                                <script src="~/js/pieChart3d.js"></script>
                                 <script>
-                                                            (function () {
-                                                                var tv = @(totalTV);
-                                                                var ta = @(totalTA);
-                                                                var lblTV = '@(pctTVstr)%';
-                                                                var lblTA = '@(pctTAstr)%';
-
-                                                                var canvas = document.getElementById('pieChart3d');
-                                                                if (!canvas) return;
-                                                                var ctx = canvas.getContext('2d');
-                                                                var W = canvas.width, H = canvas.height;
-                                                                var cx = W / 2, cy = H * 0.38;
-                                                                var rx = W * 0.40, ry = rx * 0.32, depth = 45;
-                                                                var total = tv + ta;
-                                                                if (total === 0) return;
-
-                                                                var slices = [
-                                                                    { value: tv, color: '#1F3864', dark: '#0d1f3f', label: lblTV },
-                                                                    { value: ta, color: '#A8A8A8', dark: '#6a6a6a', label: lblTA }
-                                                                ];
-
-                                                                var angle = -Math.PI / 2;
-                                                                slices.forEach(function (s) {
-                                                                    s.sa = angle;
-                                                                    s.ea = angle + (s.value / total) * 2 * Math.PI;
-                                                                    s.mid = (s.sa + s.ea) / 2;
-                                                                    angle = s.ea;
-                                                                });
-
-                                                                function drawSide(s) {
-                                                                    var va = Math.max(s.sa, 0);
-                                                                    var vb = Math.min(s.ea, Math.PI);
-                                                                    if (va >= vb) return;
-                                                                    ctx.beginPath();
-                                                                    ctx.moveTo(cx + rx * Math.cos(va), cy + ry * Math.sin(va));
-                                                                    ctx.ellipse(cx, cy, rx, ry, 0, va, vb, false);
-                                                                    ctx.lineTo(cx + rx * Math.cos(vb), cy + depth + ry * Math.sin(vb));
-                                                                    ctx.ellipse(cx, cy + depth, rx, ry, 0, vb, va, true);
-                                                                    ctx.closePath();
-                                                                    ctx.fillStyle = s.dark;
-                                                                    ctx.fill();
-                                                                    ctx.strokeStyle = 'rgba(0,0,0,0.1)';
-                                                                    ctx.lineWidth = 0.5;
-                                                                    ctx.stroke();
-                                                                }
-
-                                                                function drawTop(s) {
-                                                                    ctx.beginPath();
-                                                                    ctx.moveTo(cx, cy);
-                                                                    ctx.ellipse(cx, cy, rx, ry, 0, s.sa, s.ea, false);
-                                                                    ctx.closePath();
-                                                                    ctx.fillStyle = s.color;
-                                                                    ctx.fill();
-                                                                    ctx.strokeStyle = 'rgba(0,0,0,0.2)';
-                                                                    ctx.lineWidth = 1;
-                                                                    ctx.stroke();
-                                                                }
-
-                                                                slices.slice()
-                                                                      .sort(function (a, b) {
-                                                                          var ma = (Math.max(a.sa, 0) + Math.min(a.ea, Math.PI)) / 2;
-                                                                          var mb = (Math.max(b.sa, 0) + Math.min(b.ea, Math.PI)) / 2;
-                                                                          return Math.abs(mb - Math.PI / 2) - Math.abs(ma - Math.PI / 2);
-                                                                      })
-                                                                      .forEach(drawSide);
-                                                                slices.forEach(drawTop);
-
-                                                                slices.forEach(function (s) {
-                                                                    var lx = cx + rx * 0.65 * Math.cos(s.mid);
-                                                                    var ly = cy + ry * 0.65 * Math.sin(s.mid);
-                                                                    ctx.fillStyle = '#ffffff';
-                                                                    ctx.font = 'bold 11px Arial';
-                                                                    ctx.textAlign = 'center';
-                                                                    ctx.textBaseline = 'middle';
-                                                                    ctx.fillText(s.label, lx, ly);
-                                                                });
-                                                            })();
+                                                            document.addEventListener("DOMContentLoaded", function() {
+                                                                drawPieChart3d('pieChart3d', @Model.TotalTV, @Model.TotalTA, '@Model.PctTVStr%', '@Model.PctTAStr%');
+                                                            });
                                 </script>
                             }
 
-                            @if (mostrarTabla)
+                            @if (Model.MostrarTabla && Model.Resultados != null)
                             {
                                 <div class="col-xs-12">
                                     <p class="subtitle">CONSULTA DE PARTICIPACIÓN DETALLADO</p>
@@ -284,14 +114,32 @@
                                         <table class="table21">
                                             <tbody id="resultados">
                                                 <tr class="titulo_tabla">
-                                                    <td>@colHeader</td>
+                                                    <td>@Model.ColHeader</td>
                                                     <td>TOTAL ASISTENTES</td>
                                                     <td>% TOTAL ASISTENTES</td>
                                                     <td>TOTAL AUSENTES</td>
                                                     <td>% TOTAL AUSENTES</td>
                                                     <td>ELECTORES HÁBILES</td>
                                                 </tr>
-                                                @Html.Raw(filas.ToString())
+                                                @foreach (var r in Model.Resultados)
+                                                {
+                                                    <tr style='cursor:pointer;' onmouseover="this.style.color='grey'" onmouseout="this.style.color='black'" onclick="window.location='@r.Url'">
+                                                        <td>@r.Nombre</td>
+                                                        <td>@r.TotalVotantes.ToString("N0")</td>
+                                                        <td>@r.PctTotalVotantes</td>
+                                                        <td>@r.TotalAusentes.ToString("N0")</td>
+                                                        <td>@r.PctTotalAusentes</td>
+                                                        <td>@r.ElectoresHabiles.ToString("N0")</td>
+                                                    </tr>
+                                                }
+                                                <tr>
+                                                    <td><strong>TOTALES</strong></td>
+                                                    <td><strong>@Model.TotalTV.ToString("N0")</strong></td>
+                                                    <td><strong>@Model.PctTVStr %</strong></td>
+                                                    <td><strong>@Model.TotalTA.ToString("N0")</strong></td>
+                                                    <td><strong>@Model.PctTAStr %</strong></td>
+                                                    <td><strong>@Model.TotalEH.ToString("N0")</strong></td>
+                                                </tr>
                                             </tbody>
                                         </table>
                                     </div>

@@ -19,18 +19,25 @@ namespace webOnpeMVC.Controllers
 
         public IActionResult Ubigeo()
         {
-            var lista = new List<Departamento>();
+            var model = new Ubigeo();
             using var cn = GetConnection();
             using var cmd = new SqlCommand(SqlDepartamentos, cn);
             cn.Open();
             using var reader = cmd.ExecuteReader();
             while (reader.Read())
-                lista.Add(new Departamento
+            {
+                var dep = new Departamento
                 {
                     IdDepartamento = reader.GetInt32(0),
                     Detalle = reader.GetString(1).Trim()
-                });
-            return View(lista);
+                };
+
+                if (dep.IdDepartamento <= 25)
+                    model.Nacionales.Add(dep);
+                else
+                    model.Extranjeros.Add(dep);
+            }
+            return View(model);
         }
 
         public IActionResult Numero()

@@ -83,13 +83,55 @@ namespace webOnpeMVC.Controllers
                     .ToList();
             }
 
-            ViewBag.Ambito = ambito;
-            ViewBag.Nivel = nivel;
-            ViewBag.Val = val;
-            ViewBag.Padre = padre;
-            ViewBag.Abuelo = abuelo;
+            bool esExt = ambito == "Extranjero";
+            var model = new ParticipacionTotal
+            {
+                Resultados = resultados,
+                Ambito = ambito,
+                Nivel = nivel,
+                Val = val,
+                Padre = padre,
+                Abuelo = abuelo,
 
-            return View(resultados);
+                ColHeader = nivel == 0
+                    ? (esExt ? "CONTINENTE" : "DEPARTAMENTO")
+                    : nivel == 1
+                        ? (esExt ? "PAÍS" : "PROVINCIA")
+                        : (esExt ? "CIUDAD" : "DISTRITO"),
+
+                Lbl1 = esExt ? "Continente" : "Departamento",
+                Lbl2 = esExt ? "País" : "Provincia",
+                Lbl3 = esExt ? "Ciudad" : "Distrito",
+
+                N1Val = nivel == 1 ? val ?? "" : (nivel == 2 ? padre ?? "" : abuelo ?? ""),
+                N2Val = nivel == 2 ? val ?? "" : (nivel == 3 ? padre ?? "" : ""),
+                N3Val = nivel == 3 ? val ?? "" : ""
+            };
+
+            foreach (var r in resultados)
+            {
+                r.Url = Url.Action("Total", "Participacion", new
+                {
+                    ambito = ambito,
+                    nivel = nivel + 1,
+                    val = r.Nombre,
+                    padre = nivel >= 1 ? val : "",
+                    abuelo = nivel >= 2 ? padre : ""
+                }) ?? "#";
+
+                model.TotalTV += r.TotalVotantes;
+                model.TotalTA += r.TotalAusentes;
+                model.TotalEH += r.ElectoresHabiles;
+            }
+
+            model.PctTVStr = model.TotalEH > 0
+                ? Math.Round((double)model.TotalTV * 100.0 / model.TotalEH, 3).ToString("0.000", System.Globalization.CultureInfo.InvariantCulture)
+                : "0.000";
+            model.PctTAStr = model.TotalEH > 0
+                ? Math.Round((double)model.TotalTA * 100.0 / model.TotalEH, 3).ToString("0.000", System.Globalization.CultureInfo.InvariantCulture)
+                : "0.000";
+
+            return View(model);
         }
 
         private List<ResultadoVotos> LeerResultados(SqlCommand cmd)

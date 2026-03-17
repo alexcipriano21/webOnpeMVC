@@ -8,6 +8,7 @@
         public int TotalAusentes { get; set; }
         public string PctTotalAusentes { get; set; } = string.Empty;
         public int ElectoresHabiles { get; set; }
+        public string Url { get; set; } = string.Empty;
     }
 }
 
